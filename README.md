@@ -37,6 +37,8 @@ Run the following commands:
 ## Live Demo
 You can visit `https://ibm.biz/doc2dial` to see the Doc2Dial in action. 
 
+There is also a short video on [YouTube](https://youtu.be/Do_wb7rXXO4) demonstrating doc2dial's capabilities.
+
 ## Troubleshoots and Contributing
 If you have any questions, bug reports, and feature requests, please [open an issue](https://github.com/doc2dial/doc2dial-crowd/issues/new) on Github.
 
