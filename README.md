@@ -1,5 +1,6 @@
 Doc2Dial-crowd
-===================
+==============
+Document-Grounded Dialog Composition Framework
 
 How to run?
 1) create a virtual environment with Python 3.6
