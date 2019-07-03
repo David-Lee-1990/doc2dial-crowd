@@ -12,13 +12,13 @@ if __name__ == '__main__':
                         default='demo', type=str, help="domain to be loaded")
     parser.add_argument('--port', '-p', action="store", dest="port",
                         default=8081, type=int, help="port to host application on")
-    parser.add_argument('--db', action="store", dest="db",
+    parser.add_argument('--dburi', action="store", dest="dburi",
                         default='mongodb://localhost', type=str, help="backend database (MongoDB) service uri")
     args = parser.parse_args()
 
     # Set Environment variables associated to domain and backend database (MongoDB)
     os.environ['domain'] = args.domain
-    os.environ['db'] = args.db
+    os.environ['dburi'] = args.dburi
 
     from webapp import create_app, socketio
     app = create_app(debug=True)

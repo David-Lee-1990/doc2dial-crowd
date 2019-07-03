@@ -7,7 +7,7 @@ import copy
 import operator
 from bs4 import BeautifulSoup
 
-from ..main.const import *  
+from ..main.const import *
 from ..main.utils import randomword
 from .. import db_
 
@@ -25,7 +25,7 @@ def _update_html_label(html, d_label, task=TASK_DOC, is_hide_tag=False):
             if not ele: continue
             attrs_div = {'class': 'chip ' + LABEL_COLOR.get(ele[0], '')}
             new_span = soup.new_tag('span', **attrs_div)
-            new_span.string = ele + '[{}]'.format(k) 
+            new_span.string = ele + '[{}]'.format(k)
             if task == TASK_LS:
                 tag['class'] = LABEL_COLOR.get(ele[0], '')
                 tag.insert(1, new_span)
@@ -157,7 +157,7 @@ def load_task_ids_write(session):
     lst_task_id = []
     for d_doc in coll_task.find({'doc_id':session[DOC_ID]}):
         # if d_doc.get('is_doc_selected', True) or d_doc.get('is_subdoc_selected', True):
-        if 'anno_w' in d_doc: 
+        if 'anno_w' in d_doc:
             continue
         turn_id = d_doc[TURN_ID]
         dial_id = d_doc[DIAL_ID]
@@ -176,7 +176,7 @@ def load_task_ids_write(session):
                 coll_task.update_one({'_id': d_doc_t['_id']}, {"$set": {"anno_w": d_labels}})
         lst_task_id.append(d_doc[TASK_ID])
     return lst_task_id
-                
+
 
 def get_next_doc(session):
     coll_crowd_task = get_task_db(session)
@@ -201,6 +201,7 @@ def load_label_tasks(session):
         if 'anno_ls' in d_task and task in [TASK_LS, TASK_LR] and session[DEBUG]:
             d_task['task_html'] = _update_html_label(d_task['task_html'], d_task['anno_ls'], task)
             return d_task
+        return d_task
     return None
 
 
