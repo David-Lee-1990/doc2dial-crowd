@@ -20,6 +20,9 @@ Run the following commands:
 ## Get Started
 
 ### Prepare database
+Please import the COLLNAME.json files to your local db with commands such as,
+`mongoimport --db demodb --collection COLLNAME --drop --file COLLNAME.json`
+
 We are in process of acquiring appropriate licences for the data consist of sample documents and crowd-sourced annotations. 
 We plan to release it next couple of weeks. We will be releasing code to push that data in to a MongoDB instance as well. 
 
