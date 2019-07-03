@@ -22,7 +22,7 @@ Run the following commands:
 ### Prepare database
 Please import the COLLNAME.json files to your local mongodb (use name "demodb") with commands such as,
 
-    `mongoimport --db demodb --collection COLLNAME --drop --file COLLNAME.json`
+    mongoimport --db demodb --collection COLLNAME --drop --file COLLNAME.json
     
 
 We are in process of acquiring appropriate licences for the data consist of sample documents and crowd-sourced annotations. 
