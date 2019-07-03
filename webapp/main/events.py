@@ -1,14 +1,16 @@
-import datetime
-
 from flask import session
 from flask_socketio import emit, join_room, leave_room
-
+# from eventlet import sleep
+import datetime
 from .. import socketio
 from .const import *
-from .data import get_crowd_data_db, insert_crowd_info, get_chatdata
+from .data import (get_crowd_data_db, insert_crowd_info, get_chatdata)
+import time
 
 
 def get_message(role, text):
+    # if role == USER:
+    #     text = add_tag(text)
     if role == AGENT:
         return '<div><b class="blue-text">{0}: </b>{1}</div>'.format(role, text)
     else:
@@ -47,6 +49,7 @@ def joined(message):
 
 @socketio.on('text', namespace='/chat')
 def text(message):
+    coll = get_crowd_data_db(session)
     role = session.get(ROLE)
     mode = session.get(MODE)
     msg = message[MSG].strip()
@@ -58,6 +61,10 @@ def text(message):
 
 @socketio.on('left', namespace='/chat')
 def left(message):
+    # db_crowd = get_crowd_data_db(session)
     task_id = session.get(TASK_ID)
+    role = session.get(ROLE)
     leave_room(task_id)
+    # insert_chatdata(db_chat, session, {MSG: '#END'})
     insert_crowd_info(session)
+    # emit('status', {MSG: role + ' has left the conversation.'}, room=task_id)

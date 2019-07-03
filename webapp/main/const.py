@@ -50,16 +50,10 @@ IS_MULTIPLE = 'is_multiple'
 MESSAGE = "Thank you for your feedback!"
 
 
-TASK_LS = 'label_sentence'
-TASK_LR = 'label_relation'
-TASK_DOC = 'doc'
-TASK_WRITE = 'write'
-
-# Custom task names only used for displaying via WTFForms (forms.py)
-TASK_LS_NAME = 'TextAnno'
-TASK_LR_NAME = 'RelAnno'
-TASK_DOC_NAME = 'DocAnno'
-TASK_WRITE_NAME = 'DialAnno'
+TASK_LS = 'TextAnno'
+TASK_LR = 'RelAnno'
+TASK_DOC = 'DocAnno'
+TASK_WRITE = 'DialAnno'
 
 LABEL_S = 'solution'
 LABEL_B = 'both'

@@ -1,7 +1,14 @@
+import collections
+import itertools
+import random
 import datetime
+from collections import Counter, defaultdict
+import copy
+import operator
 from bs4 import BeautifulSoup
 
-from ..main.const import *
+from ..main.const import *  
+from ..main.utils import randomword
 from .. import db_
 
 
@@ -15,13 +22,18 @@ def _update_html_label(html, d_label, task=TASK_DOC, is_hide_tag=False):
         if not tag:
             continue
         for ele in v:
+            if not ele: continue
             attrs_div = {'class': 'chip ' + LABEL_COLOR.get(ele[0], '')}
-            
             new_span = soup.new_tag('span', **attrs_div)
-            new_span.string = ele
+            new_span.string = ele + '[{}]'.format(k) 
             if task == TASK_LS:
                 tag['class'] = LABEL_COLOR.get(ele[0], '')
                 tag.insert(1, new_span)
+            # elif task == TASK_LR:
+            #     if len(tag.contents) > 2:
+            #         tag.insert(len(tag.contents) + 1, new_span)
+            #     else:
+            #         tag.insert(len(tag.contents), new_span)
         if is_hide_tag:
             tag = soup.find(attrs={'label_id': k})
             tag['style'] = 'display: none'
@@ -47,15 +59,18 @@ def get_crowd_data_db(session):
     return db_[coll_name]
 
 
-def load_quiz_data():
+def load_quiz_data(session):
     labels = ['q_{}'.format(ele) for ele in range(1, 7)]
-    choices = [('P', 'Precondition(P)'), ('S', 'Solution(S)'), ('B', 'Both(B)'), ('O', 'Other(O)')]
+    choices = [('P', 'Precondition(P)'), ('S', 'Solution(S)'), ('B', 'Both(B)'), ('O','Other(O)')]
     quiz_data = {'choices': choices, 'labels': labels, 'question': 'question text'}
     return quiz_data
 
 
 def examine_user_input(d_in, session=None):
     sys_msg = 'Please complete all the labels. Thanks!'
+    # for k, v in d_in.items():
+    #     sys_msg = '<div class="grey-text">Please try again.</div>'
+    #     return True, sys_msg
     return True, sys_msg
 
 
@@ -128,8 +143,9 @@ def get_chatdata(session):
 
 def load_task_ids(session):
     coll_task = get_task_db(session)
+    print(session[DOC_ID])
     lst_task_id = []
-    for d_doc in coll_task.find({'doc_id':session[DOC_ID]}):
+    for d_doc in coll_task.find({'doc_id': session[DOC_ID]}):
         # if d_doc.get('is_doc_selected', True) or d_doc.get('is_subdoc_selected', True):
         lst_task_id.append(d_doc[TASK_ID])
     return lst_task_id
@@ -139,9 +155,9 @@ def load_task_ids_write(session):
     coll_task = get_task_db(session)
     coll_crowd = get_crowd_data_db(session)
     lst_task_id = []
-    for d_doc in coll_task.find({'doc_id': session[DOC_ID]}):
+    for d_doc in coll_task.find({'doc_id':session[DOC_ID]}):
         # if d_doc.get('is_doc_selected', True) or d_doc.get('is_subdoc_selected', True):
-        if 'anno_w' in d_doc:
+        if 'anno_w' in d_doc: 
             continue
         turn_id = d_doc[TURN_ID]
         dial_id = d_doc[DIAL_ID]
@@ -185,7 +201,6 @@ def load_label_tasks(session):
         if 'anno_ls' in d_task and task in [TASK_LS, TASK_LR] and session[DEBUG]:
             d_task['task_html'] = _update_html_label(d_task['task_html'], d_task['anno_ls'], task)
             return d_task
-        return d_task
     return None
 
 
@@ -207,5 +222,6 @@ def is_pass_test(session, worker_id):
 
 
 def get_user(username):
-    coll = db_['users']
-    return next(coll.find({"username": username}))
+    # coll = db_['users']
+    # return next(coll.find({"username": username}))
+    return 'admin'

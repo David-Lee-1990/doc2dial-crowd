@@ -1,13 +1,4 @@
 tag_data = {
-  'p-action': null,
-  'p-state': null,
-  'precondition': null,
-  'solution': null,
-  'issue': null,
-  'other': null
-};
-
-tag_data = {
   'precondition': null,
   'solution': null,
   'both': null,

@@ -1,7 +1,7 @@
 {
   "domain_name": "demo",
   "domain_db": {
-    "db_name": "sampledb",
+    "db_name": "demodb",
     "coll_domain_data": "domain_data",
     "coll_task_data": "task_data",
     "coll_crowd_data": "crowd_data",
@@ -13,11 +13,10 @@
   "repository": "https://github.com/doc2dial",
   "app_url": "http://woz.mybluemix.net/login?",
   "metadata":{
-    "tasks": ["doc", "label_sentence", "label_relation", "write"],
-    "tasks_names": ["DocAnno", "TextAnno", "RelAnno", "DialAnno"],
+    "tasks": ["DocAnno", "TextAnno", "RelAnno", "DialAnno"],
     "doc_info": ["title", "label", "doc_id", "idx_doc"],
     "ls_info": ["title", "label"],
-    "doc": [
+    "DocAnno": [
       {"suggest": {"Name": "suggest", "DataType": "String", "has_values":
         ["No", "Maybe No", "Maybe Yes", "Yes"], "is_select": false, "is_multiple": false}},
       {"specification": {"Name": "specification", "DataType": "String", "has_values":
@@ -25,7 +24,7 @@
       {"category": {"Name": "category", "DataType": "String", "has_values":
         ["trouble shooting", "manual/instruction", "error log", "other"], "is_select": true, "is_multiple": false}}
     ],
-    "write": [
+    "DialAnno": [
       {"dialog_act": {"Name": "dialog_act", "DataType": "String", "has_values":
       ["state/describe", "request/question", "respond/answer", "query about precondition", "other"], "is_select": true, "is_multiple": 1}},
       {"input_text": {"Name": "input_text", "DataType": "String", "is_multiple": false}},
@@ -34,23 +33,16 @@
       {"approval": {"Name": "approval", "DataType": "String", "has_values":
           ["No", "Maybe No", "Maybe Yes", "Yes"], "is_select": false, "is_multiple": false}}
     ],
-    "label_sentence": [
+    "TextAnno": [
       {"dialog_act": {"Name": "dialog_act", "DataType": "String", "has_values":
       ["explain", "question", "answer", "disamb_precon"], "is_select": true, "is_multiple": 1}},
       {"input_text": {"Name": "input_text", "DataType": "String", "is_multiple": false}},
       {"question": {"Name": "question", "DataType": "String", "has_values":
         ["yesOrNo", "what", "how", "other"], "is_select": true, "is_multiple": false}}
     ],
-    "label_relation": [
+    "RelAnno": [
       {"relation": {"Name": "relation", "DataType": "String", "has_values":
       ["is-parent-of", "is-child-of", "is-sibling (ordered)", "is-sibling (unordered)"], "is_select": false, "is_multiple": false}}
-    ],
-    "label_textspan": [
-      {"dialog_act": {"Name": "dialog_act", "DataType": "String", "has_values":
-      ["explain", "question", "answer", "disamb_precon"], "is_select": true, "is_multiple": 1}},
-      {"input_text": {"Name": "input_text", "DataType": "String", "is_multiple": false}},
-      {"question": {"Name": "question", "DataType": "String", "has_values":
-        ["yesOrNo", "what", "how", "other"], "is_select": true, "is_multiple": false}}
     ]
   },
   "crowdsourcing": {

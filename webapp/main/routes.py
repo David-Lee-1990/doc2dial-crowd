@@ -1,13 +1,11 @@
-import json
-
 from flask import session, redirect, url_for, request, jsonify
 from flask import render_template, render_template_string
-
+import json
 from . import app
 from .. import config
 from ..main.data import get_next_doc, get_user
 from ..main.forms import (AdminLoginForm, WorkerLoginForm, TestForm, ResultForm,
-                          FeedbackForm, AnnotationDocForm, AnnotationWriteForm, AnnotationLabelForm, AnnotationLabelRelationForm)
+                    FeedbackForm, AnnotationDocForm, AnnotationWriteForm, AnnotationLabelForm, AnnotationLabelRelationForm)
 from ..main.data import (insert_anno_data, is_pass_test, insert_crowd_info, examine_user_input,
                    get_dial_id, update_crowd, load_quiz_data, load_task_ids, load_task_ids_write, load_label_tasks)
 from ..main.const import *
@@ -15,13 +13,13 @@ from ..main.metadata_processor import metadata_valuetype
 
 
 def verify_admin(username, password):
+    return True
     user = get_user(username)
     if user['password'] == password:
         print("Login for {} successful!!!".format(username))
         return True
     else:
         print("Login attempted for {}. Incorrect password used.".format(username))
-
     return False
 
 
@@ -37,18 +35,67 @@ def example():
 
 @app.route('/result', methods=['GET', 'POST'])
 def result():
+    d_in = form_POST(None)
+    d_answer = {'quiz_answer':['P', 'S', 'B', 'P', 'S', 'P']}
     insert_crowd_info(session)
-    return jsonify({})
+    print('$$', d_in)
+    d_res = {}
+    return jsonify(d_res)
 
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
     username = session.get(USERNAME)
+    is_pass = session.get(PASS)
+    task_id = session.get(TASK_ID)
     form = TestForm()
+    # if request.method == 'POST':
+    #     answer = ['O'] * 6
+    #     data = [form.q1.data, form.q2.data, form.q3.data, form.q4.data, form.q5.data, form.q6.data,]
+    #     is_pass = len([1 for i in range(len(answer)) if answer[i] == data[i]]) > 1
+        
+        # result_page = 'result.{}.html'.format(session[TASK])
+        # form1 = ResultForm()
+        # is_pass = True
+        # return render_template(result_page, form=form1)
+        # print(len([1 for i in range(len(answer)) if answer[i] == data[i]]))
+        # if is_pass:
+        #     session[PASS] = is_pass
+        #     _id = None
+            # for r in db_crowd.find({TASK_ID: task_id}):
+            #     _id = r['_id']
+            #     break
+        #     if not _id:
+        #         insert_crowd_info(session, {})
+        #     else:
+        #         update_crowd(_id, session, {})
+        #     return redirect(url_for('.label'))
+        # else:
+        #     return redirect(url_for('.end'))
+  
     html_page = 'quiz.{}.html'.format(session[TASK])
-    quiz_data = load_quiz_data()
+    quiz_data = load_quiz_data(session)
     text_data = ''
     return render_template(html_page, form=form, text_data=text_data, quiz_data=quiz_data, username=username)
+
+
+def _init_login_by_form(form):
+    session.clear()
+    session[WORKER_ID] = form.workerid.data
+    session[USERNAME] = form.username.data
+    session[TASK_IDS] = form.task_ids.data
+    session[TASK] = form.task.data
+    session[DOC_ID] = form.doc_id.data
+    session[NEXT_TASK_IDX] = 0
+    if len(session[TASK_IDS].strip()) > 0:
+        if SEP in session[TASK_IDS]:
+            session[TASK_IDS] = session[TASK_IDS].split(SEP)
+        else:
+            session[TASK_IDS] = [session[TASK_IDS]]
+    # elif session[TASK] == TASK_WRITE: 
+    #     session[TASK_IDS] = load_task_ids_write(session)
+    else:
+        session[TASK_IDS] = load_task_ids(session)
 
 
 def configure_session_for_admin(form):
@@ -58,17 +105,9 @@ def configure_session_for_admin(form):
 
     # Map task names to their corresponding task identifier
     task = form.task.data
-    if task == TASK_DOC_NAME:
-        session[TASK] = TASK_DOC
-    elif task == TASK_LS_NAME:
-        session[TASK] = TASK_LS
-    elif task == TASK_LR_NAME:
-        session[TASK] = TASK_LR
-    elif task == TASK_WRITE_NAME:
-        session[TASK] = TASK_WRITE
-    else:
-        session[TASK] = task
+    session[TASK] = task
 
+    session[DOC_ID] = form.document.data
     session[NEXT_TASK_IDX] = 0
     session[DEBUG] = True
 
@@ -78,6 +117,9 @@ def configure_session_for_admin(form):
             session[TASK_IDS] = session[TASK_IDS].split(SEP)
         else:
             session[TASK_IDS] = [session[TASK_IDS]]
+    # If not task_id is provided task is 'write' then load task ids
+    # elif session[TASK] == TASK_WRITE:
+        # session[TASK_IDS] = load_task_ids_write(session)
     else:
         session[TASK_IDS] = load_task_ids(session)
 
@@ -134,11 +176,12 @@ def form_POST(form_meta):
 @app.route('/anno', methods=['GET', 'POST'])
 def anno():
     session.pop(NEXT_TASK_IDX)
-    if session[TASK] == 'write':
+    if session[TASK] == TASK_WRITE:
         d_in = form_POST(config['metadata']['write'])
         session[DIAL_ID] = get_dial_id(session)
     else:
         d_in = form_POST(None)
+    print('$$d_in', d_in)
     d_res = {}
     is_pass, sys_msg = examine_user_input(d_in, session)
     if is_pass:
@@ -157,6 +200,7 @@ def anno():
     d_res['is_pass'] = is_pass
     d_res['sys_msg'] = "Label saved." # sys_msg
     return jsonify(d_res)
+    # return 'Okay'
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -182,7 +226,8 @@ def index():
 def label():
     is_pass = True
     username = session.get(USERNAME, '')
-    if session[DEBUG] and session[TASK] == 'doc' and session[NEXT_TASK_IDX] == len(session[TASK_IDS]):
+    task_id = None
+    if session[DEBUG] and session[TASK] == TASK_DOC and session[NEXT_TASK_IDX] == len(session[TASK_IDS]):
         doc_next = get_next_doc(session)
         if doc_next:
             session[DOC_ID] = doc_next[DOC_ID]
@@ -199,12 +244,13 @@ def label():
     task_data = load_label_tasks(session)
     if session[TASK] == TASK_WRITE:
         session[TURN_ID] = task_data[TURN_ID]
+        # task_data['anno_w'] = {ROLE:'user', 'action_desc': 'Ask a question that can be answered by the highlighted text and select your question type.', 'input_text': 'How long is the wait?'}
         if 'anno_w' in task_data:
             is_verify = True
     if task_data is None:
         return redirect(url_for('.end'))
-    if 'role' in task_data:
-        session[ROLE] = task_data['role']
+    if ROLE in task_data:
+        session[ROLE] = task_data[ROLE]
     task_html = 'task.{}.html'.format(session[TASK])
     if session[TASK] == TASK_LR:
         form = AnnotationLabelRelationForm()
@@ -213,12 +259,6 @@ def label():
     elif session[TASK] == TASK_WRITE:
         form = AnnotationWriteForm()
     else:
-        if task_data:
-            task_data['doc_stats'] = {'Linguistic-ptn': task_data['doc_stats']['linguistic-ptn'],
-                                      'HTML-List': task_data['doc_stats']['list'],
-                                      'Tokens': task_data['doc_stats']['token'],
-                                      'Text-Spans': task_data['doc_stats']['text'],
-                                      'Titles': task_data['doc_stats']['title']}
         form = AnnotationDocForm()
     label_ids = []
     if task_data is not None and 'label_ids' in task_data:
@@ -230,7 +270,7 @@ def label():
             d_choices = {'h': relation_h, 'c': relation_c}
             task_data['choices'] = d_choices
     if session[NEXT_TASK_IDX] < len(session[TASK_IDS]):
-        progress = 'TASK {} out of {}'.format(session[NEXT_TASK_IDX] + 1, len(session[TASK_IDS]))
+        progress = 'task {} {} out of {}'.format(session[TASK], session[NEXT_TASK_IDX] + 1, len(session[TASK_IDS]))
         return render_template(task_html, form=form, label_ids=label_ids, is_debug=session[DEBUG], task_data=task_data,
                                 next_task_idx=session[NEXT_TASK_IDX], is_verify=is_verify,
                                 username=username, progress=progress)
@@ -263,7 +303,6 @@ def end():
                            estimated_reward=estimated_reward)
 
 
-@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = WorkerLoginForm()
 

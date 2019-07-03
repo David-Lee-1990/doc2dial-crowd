@@ -4,7 +4,6 @@ from wtforms.fields import (StringField, PasswordField, SubmitField, RadioField,
                             TextAreaField)
 from wtforms.validators import DataRequired
 from wtforms import widgets
-
 from ..main.const import *  
 from .metadata_processor import metadata2form
 from .. import config
@@ -16,11 +15,10 @@ class MultiCheckboxField(SelectMultipleField):
 
 
 class AdminLoginForm(FlaskForm):
-    default_task_choice = TASK_WRITE_NAME  # TASK_LS TASK_WRITE TASK_LR
+    default_task_choice = TASK_WRITE  # TASK_LS TASK_WRITE TASK_LR
+    default_document = ''
     if config['domain_name'] == 'demo':
-        default_document = 'devices_at_workspace'  # 'access_cloud_mail' # 'aix' #
-    else:
-        default_document = "If you can't make a FaceTime call on your iPhone, iPad, or iPod touch"
+        default_document = 'devices_at_worksystem'  # 'access_cloud_mail' # 'aix' #
     document = StringField('document', id='document', default=default_document)
     username = StringField('username', id="username", validators=[DataRequired()])
     password = PasswordField('password', id="password", validators=[DataRequired()])
@@ -29,7 +27,7 @@ class AdminLoginForm(FlaskForm):
                       validators=[DataRequired()], default='user')
     mode = RadioField('mode', choices=[('anno_label', 'anno with labels'), ('anno_question', 'anno with questions')],
                       validators=[DataRequired()], default='anno_label')
-    task_choices = [(ele, ele.replace('_', ' ')) for ele in config['metadata']['tasks_names']]
+    task_choices = [(ele, ele.replace('_', ' ')) for ele in config['metadata']['tasks']]
     task = RadioField('task', choices=task_choices, validators=[DataRequired()], default=default_task_choice)
     submit = SubmitField('Start', id='login')
 
@@ -57,7 +55,7 @@ class AnnotationDocForm(FlaskForm):
               'FloatField': FloatField, 'RadioField': RadioField, 
               'SelectField': SelectField,
               'SelectMultipleField': SelectMultipleField}
-    for d_meta in config["metadata"]["doc"]:
+    for d_meta in config["metadata"][TASK_DOC]:
         for func, d in metadata2form(list(d_meta.items())[0][-1]):
             if func in ['SelectField', 'SelectMultipleField']:
                 tmp = d_func[func](d[NAME], choices=d['choices'], id=d[NAME])
@@ -73,7 +71,7 @@ class AnnotationWriteForm(FlaskForm):
     d_func = {'IntegerField': IntegerField, 'StringField': StringField,
               'FloatField': FloatField, 'SelectField': SelectField,
               'SelectMultipleField': SelectMultipleField}
-    for d_meta in config["metadata"]["write"]:
+    for d_meta in config["metadata"][TASK_WRITE]:
         for func, d in metadata2form(list(d_meta.items())[0][-1]):
             if func in ['SelectField', 'SelectMultipleField']:
                 tmp = d_func[func](d[NAME], choices=d['choices'], id=d[NAME])
