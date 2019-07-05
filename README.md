@@ -36,7 +36,7 @@ Run the following commands:
 
 ### Explore
 1. Go to `http://localhost:8081`
-2. Login as an `admin` with `password with 0` as password
+2. Login as an `admin` with `password o replaced with 0` as password
 3. Please make sure you select a task to explore before clicking `Start`
 
 ## Live Demo
