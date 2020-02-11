@@ -40,7 +40,7 @@ Run the following commands:
 3. Please make sure you select a task to explore before clicking `Start`
 
 ## Live Demo
-You can visit `https://ibm.biz/doc2dial` to see the Doc2Dial in action. 
+(Coming soon. with new features of dialog flow generations) 
 
 There is also a short video on [YouTube](https://youtu.be/Do_wb7rXXO4) demonstrating doc2dial's capabilities.
 
